@@ -39,7 +39,7 @@ def send_data_to_kafka(data, topic_name, invoke_url):
             }
         ]
     })
-         
+    
     response = requests.post(f'{invoke_url}/{topic_name}', headers=headers, data=payload)
     
     if response.status_code == 200:
@@ -79,7 +79,7 @@ def run_infinite_post_data_loop(invoke_url):
             print(geo_result)
             print(user_result)
             
-           #datetime is not JSON serialisable
+            #datetime is not JSON serialisable
             geo_result['timestamp'] = str(geo_result['timestamp'])
             user_result['date_joined'] = str(user_result['date_joined'])
             
@@ -91,10 +91,9 @@ def run_infinite_post_data_loop(invoke_url):
 
 
 if __name__ == "__main__":
-    invoke_url = 'https://29tbtqme3j.execute-api.us-east-1.amazonaws.com/test'
+    invoke_url = 'https://29tbtqme3j.execute-api.us-east-1.amazonaws.com/test/topics'
     run_infinite_post_data_loop(invoke_url)
     print('Working')
     
     
-
 
