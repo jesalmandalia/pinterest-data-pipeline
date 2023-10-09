@@ -29,7 +29,19 @@ class AWSDBConnector:
 new_connector = AWSDBConnector()
 
 
-def run_infinite_post_data_loop():
+def send_data_to_kafka(data, topic_name, invoke_url):
+    headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
+    payload = json.dumps(data)
+    response = requests.post(f'{invoke_url}/{topic_name}', headers=headers, data=payload)
+    
+    if response.status_code == 200:
+        print(f'Successfully sent data to Kafka topic {topic_name}')
+    else:
+        print(f'Failed to send data to Kafka topic {topic_name}')
+        print(f'Response: {response.status_code}, {response.text}')
+
+
+def run_infinite_post_data_loop(invoke_url):
     while True:
         sleep(random.randrange(0, 2))
         random_row = random.randint(0, 11000)
@@ -59,9 +71,20 @@ def run_infinite_post_data_loop():
             print(geo_result)
             print(user_result)
 
+            #datetime is not JSON serialisable
+            geo_result['timestamp'] = str(geo_result['timestamp'])
+            user_result['date_joined'] = str(user_result['date_joined'])
+            
+            # Send data to Kafka topics
+            send_data_to_kafka(pin_result, '0a48d8473ced.pin', invoke_url)
+            send_data_to_kafka(geo_result, '0a48d8473ced.geo', invoke_url)
+            send_data_to_kafka(user_result, '0a48d8473ced.user', invoke_url)
+
+
 
 if __name__ == "__main__":
-    run_infinite_post_data_loop()
+    invoke_url = 'https://29tbtqme3j.execute-api.us-east-1.amazonaws.com/test'
+    run_infinite_post_data_loop(invoke_url)
     print('Working')
     
     
