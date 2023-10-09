@@ -30,8 +30,16 @@ new_connector = AWSDBConnector()
 
 
 def send_data_to_kafka(data, topic_name, invoke_url):
-    headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
-    payload = json.dumps(data)
+    headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'} 
+    payload = json.dumps({
+        "records": [
+            {
+            #Data should be send as pairs of column_name:value, with different columns separated by commas
+            "value": {key: data[key] for key in data.keys()}
+            }
+        ]
+    })
+         
     response = requests.post(f'{invoke_url}/{topic_name}', headers=headers, data=payload)
     
     if response.status_code == 200:
@@ -51,7 +59,7 @@ def run_infinite_post_data_loop(invoke_url):
 
             pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
             pin_selected_row = connection.execute(pin_string)
-            
+       
             for row in pin_selected_row:
                 pin_result = dict(row._mapping)
 
@@ -70,8 +78,8 @@ def run_infinite_post_data_loop(invoke_url):
             print(pin_result)
             print(geo_result)
             print(user_result)
-
-            #datetime is not JSON serialisable
+            
+           #datetime is not JSON serialisable
             geo_result['timestamp'] = str(geo_result['timestamp'])
             user_result['date_joined'] = str(user_result['date_joined'])
             
