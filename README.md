@@ -1,8 +1,5 @@
 # Pinterest Data Pipeline
-
-## Table of Contents
 - [Pinterest Data Pipeline](#pinterest-data-pipeline)
-	- [Table of Contents](#table-of-contents)
 	- [Description](#description)
 		- [Project Goals](#project-goals)
 	- [Installation](#installation)
