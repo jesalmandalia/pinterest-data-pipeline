@@ -144,7 +144,7 @@ The purpose of configuring the API in API Gateway and setting up the Kafka REST 
 
 
 #### Databricks
-- Mount the designated S3 bucket to the Databricks account, creating or using the provided authentication credentials file. Create three distinct Data Frames (df_pin, df_geo, df_user) for processing Pinterest post data, geolocation data, and user data. 
+- Mount the designated S3 bucket to the Databricks account, creating or using the provided authentication credentials file. Create three distinct Data Frames (`df_pin`, `df_geo`, `df_user`) for processing Pinterest post data, geolocation data, and user data. 
 - Modify the user_posting_emulation.py script to send data to corresponding Kafka topics via the API Invoke URL and verify the data flow to the cluster using Kafka consumers, ensuring proper data organisation within the designated S3 bucket.
 
 These steps are essential to seamlessly process and analyse data within the Databricks environment.
