@@ -7,7 +7,7 @@
 	- [Usage](#usage)
 		- [For batch processing](#for-batch-processing)
 		- [For streaming data](#for-streaming-data)
-	- [Project Structure](#project-structure)
+	- [Project Steps](#project-steps)
 		- [Batch Processing](#batch-processing)
 			- [Configure the EC2 Kafka Client](#configure-the-ec2-kafka-client)
 			- [Connect a MSK cluster to a S3 bucket](#connect-a-msk-cluster-to-a-s3-bucket)
@@ -44,7 +44,7 @@ git clone https://github.com/jesalmandalia/pinterest-data-pipeline.git
 
 2. Install any required dependencies and libraries. 
 
-Please ensure that you have installed the necessary libraries (e.g., pandas, sqlalchemy,pyspark, apache-airflow) before running the scripts.
+Please ensure that you have installed the necessary libraries (e.g., pandas, sqlalchemy, pyspark, apache-airflow) before running the scripts.
 
 ```bash
 pip install -r requirements.txt
@@ -61,17 +61,15 @@ The AWS services which are used in this project are:
 - AWS MWAA (Managed Workflows for Apache Airflow): Utilised for orchestrating and automating complex data pipelines.
 - AWS Kinesis Data Streams: Needed for collecting and processing large streams of data records in real time.
 
-4. Setup Databricks account
-
 
 ## File Structure
 
 The project contains the following files:
 
-- **user_posting_emulation.py**: Script containing login credentials for the RDS database, simulating user data posting to Pinterest and sending data to Kafka topics.This file retrieves, pinterest_data which contains data about posts being updated to Pinterest, geolocation_data which contains data about the geolocation of each Pinterest post found in pinterest_data and user_data which contains data about the user that has uploaded each post found in pinterest_data. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to the S3 bucket.
+- **user_posting_emulation.py**: Script containing login credentials for the RDS database, simulating user data posting to Pinterest and sending data to Kafka topics. This file retrieves, pinterest data which contains data about posts being updated to Pinterest, geolocation_data which contains data about the geolocation of each Pinterest post found in the pinterest data and user data which contains data about the user that has uploaded each post. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to an S3 bucket.
 - **mount_s3_bucket.ipynb**: Python notebook on how to mount an S3 bucket to the Databricks account. Data transformations and analysis are also performed using PySpark in the notebook.
-- **0a48d8473ced_dag.py** is an Airflow DAG file triggering the Databricks Notebook on a scheduled basis, uploaded to the mwaa-dags-bucket. 
-- **user_posting_emulation_streaming.py**: Python script facilitating the sending of data to the Kinesis data streams.
+- **0a48d8473ced_dag.py** is an Airflow DAG file triggering the Databricks notebook on a scheduled basis. This has been uploaded to the mwaa-dags-bucket. 
+- **user_posting_emulation_streaming.py**: Python script facilitating the sending of data to Kinesis data streams.
 - **kinesis_data_streams.ipynb**: Python notebook demonstrating the creation and management of data streams using AWS Kinesis.
 - **README.md**: The project's README file (you're reading it!).
 - **requirements.txt** Can be used to replicate the project environment.  
@@ -82,13 +80,13 @@ The project contains the following files:
 Here are the instructions for using the Pinterest Data Pipeline:
 
 ### For batch processing
-1. Run the user_posting_emulation.py script to post the user data:
+1. Run the user_posting_emulation.py script to send the user data after formatting to the designated Kafka topics:
 
 ```bash
 python user_posting_emulation.py
 ```
 
-2. Databricks is then used to run the `mount_s3_bucket.ipynb` notebook to clean and analyse the Pintrest user data.
+1. Databricks is then used to run the `mount_s3_bucket.ipynb` notebook to clean and analyse the Pintrest data.
 
 ### For streaming data
 1. Run the user_posting_emulation_streaming.py script:
@@ -101,7 +99,7 @@ This file is similar to the user_posting_emulation.py file in loading Pintrest d
 
 2. The `kinesis_data_streams.ipynb` file is then used in Databricks to read the Kinesis streams data and transform the data. The streaming data in finally saved in a Delta table.
    
-## Project Structure
+## Project Steps
 
 The project's main structure involves several steps, each focusing on specific tasks and configurations. These are organised as follows:
 
@@ -116,7 +114,7 @@ The project's main structure involves several steps, each focusing on specific t
 ### Batch Processing
 #### Configure the EC2 Kafka Client
 - Create a .pem file for EC2 instance access via Parameter Store, and save it with the key pair name.
-- Install Kafka and IAM MSK authentication package on your EC2 machine. Ensure you have necessary permissions to authenticate the MSK cluster.
+- Install Kafka and IAM MSK authentication package on the EC2 machine. Ensure that necessary permissions are configured to authenticate the MSK cluster.
 - Configure the Kafka client by modifying the client.properties file in the kafka_folder/bin directory to enable AWS IAM authentication to the cluster.
 - Create specific topics the following Kafka topics using the Bootstrap servers and Apache Zookeeper strings obtained from the MSK Management Console.
 
@@ -129,7 +127,7 @@ The purpose of configuring the EC2 Kafka client was to enable secure access to t
 - Create a custom plugin in the MSK Connect console.
 - Set up a connector with the name in the MSK Connect console.
 - Configure the connector with the correct bucket name and 'topics.regex' structure to ensure proper data flow.
-- Assign the IAM role for MSK cluster authentication in the Access permissions tab while building the connector.
+- Assign the IAM role for MSK cluster authentication in the access permissions tab while building the connector.
 
 This setup will enable automatic data storage from the IAM authenticated cluster to the designated S3 bucket.
 
@@ -148,8 +146,8 @@ These steps are essential to seamlessly process and analyse data within the Data
 
 
 #### Spark on Databricks
-- Clean the `df_pin` Data Frame by replacing empty and irrelevant entries, ensuring numeric data types, and reordering the columns.
-- Clean the `df_geo` Data Frame by creating a coordinates array, converting data types, and reordering the columns.
+- Clean the `df_pin` Data Frame by replacing empty and irrelevant entries, ensuring numeric data types and reordering the columns.
+- Clean the `df_geo` Data Frame by creating a coordinates array, converting data types and reordering the columns.
 - Clean the `df_user` Data Frame by creating a concatenated 'user_name', converting data types and reordering the columns.
 - Perform queries to find answers to meaningful questions using Spark's DataFrame operations in Databricks.
 
@@ -164,10 +162,10 @@ This process utilises the AWS MWAA environment for batch processing tasks, enabl
 ### Stream Processing
 #### AWS Kinesis
 - Create 3 Kinesis Data Streams for the three Pinterest tables
-- Configure the REST API to enable Kinesis actions using the access role>.
-- Create the user_posting_emulation_streaming.py script based on the user_posting_emulation.py script to send data to the corresponding Kinesis streams from the Pinterest tables.
-- Read in the authentication credentials in a new Databricks Notebook, ingest data into the Kinesis Data Streams and verify it is received in the Kinesis console.
-- Perform data cleaning for the streamed data, following the same procedure used for batch data cleaning.
+- Configure the REST API to enable Kinesis actions using the access role.
+- Create the user_posting_emulation_streaming.py script based on user_posting_emulation.py to send data to the corresponding Kinesis streams from the Pinterest tables.
+- Read in the authentication credentials in a new Databricks Notebook, ingest data into the Kinesis data streams and verify it is received in the Kinesis console.
+- Perform data cleaning for the streamed data following the same procedure used for batch data cleaning.
 - Save each stream in a Delta Table for further analysis.
 
 These tasks are essential to establish a seamless data streaming process utilising AWS Kinesis for the three designated Pinterest tables, ensuring data cleanliness and organisation through Delta Tables in Databricks.
