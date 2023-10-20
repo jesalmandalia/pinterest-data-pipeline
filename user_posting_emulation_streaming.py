@@ -1,7 +1,7 @@
 """
 This script retrieves data from AWS RDS, formats it, and sends it to Kinesis streams.
 """
-import boto2
+import boto3
 import json
 import random
 import requests
