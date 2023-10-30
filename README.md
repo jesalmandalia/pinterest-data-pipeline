@@ -66,10 +66,11 @@ The AWS services which are used in this project are:
 
 The project contains the following files:
 
-- **data_emulation/user_posting_emulation.py**: Script containing login credentials for the RDS database, simulating user data posting to Pinterest and sending data to Kafka topics. This file retrieves, pinterest data which contains data about posts being updated to Pinterest, geolocation data which contains data about the geolocation of each Pinterest post found in the pinterest data and user data which contains data about the user that has uploaded each post. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to an S3 bucket.
-- **databricks/batch_transforms.ipynb**: Python notebook on how to mount an S3 bucket to the Databricks account. Data transformations and analysis are also performed using PySpark in the notebook.
-- **0a48d8473ced_dag.py** is an Airflow DAG file triggering the Databricks notebook on a scheduled basis. This has been uploaded to the mwaa-dags-bucket. 
+- **data_emulation/user_posting_emulation.py**: Script simulating user data posting to Pinterest and sending data to Kafka topics. This file retrieves, pinterest data which contains data about posts being updated to Pinterest, geolocation data which contains data about the geolocation of each Pinterest post found in the pinterest data and user data which contains data about the user that has uploaded each post. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to an S3 bucket.
 - **data_emulation/user_posting_emulation_streaming.py**: Python script facilitating the sending of data to Kinesis data streams.
+- **data_emulation/user_posting_emulation_toolkit.py**: This package provides functionality for retrieving data from an AWS RDS instance. It includes classes for connecting to the AWS RDS instance and retrieving data, as well as functions for building payloads for Kafka and Kinesis.
+- **0a48d8473ced_dag.py** is an Airflow DAG file triggering the Databricks notebook on a scheduled basis. This has been uploaded to the mwaa-dags-bucket. 
+- **databricks/batch_transforms.ipynb**: Python notebook on how to mount an S3 bucket to the Databricks account. Data transformations and analysis are also performed using PySpark in the notebook.
 - **databricks/kinesis_data_streams.ipynb**: Python notebook demonstrating the creation and management of data streams using AWS Kinesis.
 - **README.md**: The project's README file (you're reading it!).
 - **requirements.txt** Can be used to replicate the project environment.  
