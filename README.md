@@ -66,11 +66,11 @@ The AWS services which are used in this project are:
 
 The project contains the following files:
 
-- **user_posting_emulation.py**: Script containing login credentials for the RDS database, simulating user data posting to Pinterest and sending data to Kafka topics. This file retrieves, pinterest data which contains data about posts being updated to Pinterest, geolocation data which contains data about the geolocation of each Pinterest post found in the pinterest data and user data which contains data about the user that has uploaded each post. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to an S3 bucket.
-- **mount_s3_bucket.ipynb**: Python notebook on how to mount an S3 bucket to the Databricks account. Data transformations and analysis are also performed using PySpark in the notebook.
+- **data_emulation/user_posting_emulation.py**: Script containing login credentials for the RDS database, simulating user data posting to Pinterest and sending data to Kafka topics. This file retrieves, pinterest data which contains data about posts being updated to Pinterest, geolocation data which contains data about the geolocation of each Pinterest post found in the pinterest data and user data which contains data about the user that has uploaded each post. The data is processed and sent to Kafka topics. Assuming that the built the plugin-connector pair is built, data going through all the three previously created Kafka topics will get saved to an S3 bucket.
+- **databricks/batch_transforms.ipynb**: Python notebook on how to mount an S3 bucket to the Databricks account. Data transformations and analysis are also performed using PySpark in the notebook.
 - **0a48d8473ced_dag.py** is an Airflow DAG file triggering the Databricks notebook on a scheduled basis. This has been uploaded to the mwaa-dags-bucket. 
-- **user_posting_emulation_streaming.py**: Python script facilitating the sending of data to Kinesis data streams.
-- **kinesis_data_streams.ipynb**: Python notebook demonstrating the creation and management of data streams using AWS Kinesis.
+- **data_emulation/user_posting_emulation_streaming.py**: Python script facilitating the sending of data to Kinesis data streams.
+- **databricks/kinesis_data_streams.ipynb**: Python notebook demonstrating the creation and management of data streams using AWS Kinesis.
 - **README.md**: The project's README file (you're reading it!).
 - **requirements.txt** Can be used to replicate the project environment.  
 - **LICENSE**: Information about the project's license.
@@ -86,7 +86,7 @@ Here are the instructions for using the Pinterest Data Pipeline:
 python user_posting_emulation.py
 ```
 
-1. Databricks is then used to run the `mount_s3_bucket.ipynb` notebook to clean and analyse the Pintrest data.
+1. Databricks is then used to run the `batch_transforms.ipynb` notebook to clean and analyse the Pintrest data.
 
 ### For streaming data
 1. Run the user_posting_emulation_streaming.py script:
@@ -137,6 +137,9 @@ This setup will enable automatic data storage from the IAM authenticated cluster
 
 The purpose of configuring the API in API Gateway and setting up the Kafka REST Proxy was for seamless data transmission from the API to the MSK Cluster, enabling efficient data processing and communication within the AWS environment.
 
+This screenshot shows an example of the configuration in API Gateway:
+![Screenshot 1](screenshots/api_gateway.png)
+
 
 #### Databricks
 - Mount the designated S3 bucket to the Databricks account, creating or using the provided authentication credentials file. Create three distinct Data Frames (`df_pin`, `df_geo`, `df_user`) for processing Pinterest post data, geolocation data, and user data. 
@@ -153,10 +156,17 @@ These steps are essential to seamlessly process and analyse data within the Data
 
 These data cleaning and querying tasks were conducted to ensure the integrity and organisation of the datasets, allowing for meaningful analysis of the Pinterest platform which can aid in informed decision-making and targeted strategy formulation.
 
+This screenshot shows an example of a notebook in Databricks:
+![Screenshot 2](screenshots/databricks.png)
+
+
 #### AWS MWAA
 - Utilise the provided MWAA environment Databricks-Airflow-env and mwaa-dags-bucket to create an Airflow DAG triggering a Databricks Notebook on a specified schedule and ensure successful manual triggering of the uploaded DAG for seamless batch processing within the AWS MWAA environment.
 
 This process utilises the AWS MWAA environment for batch processing tasks, enabling the triggering of Databricks Notebooks on a scheduled basis therefore allowing efficient data processing and analysis.
+
+This screenshot shows an example of the Airflow DAGs home:
+![Screenshot 3](screenshots/airflow.png)
 
 
 ### Stream Processing
@@ -169,6 +179,11 @@ This process utilises the AWS MWAA environment for batch processing tasks, enabl
 - Save each stream in a Delta Table for further analysis.
 
 These tasks are essential to establish a seamless data streaming process utilising AWS Kinesis for the three designated Pinterest tables, ensuring data cleanliness and organisation through Delta Tables in Databricks.
+
+This screenshot shows an example of the Kinesis console: 
+![Screenshot 4](screenshots/kinesis.png)
+
+
 
 ## License
 
