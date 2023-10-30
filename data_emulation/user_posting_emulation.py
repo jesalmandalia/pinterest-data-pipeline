@@ -66,13 +66,7 @@ def send_data_to_kafka(data, topic_name, invoke_url):
         invoke_url (str): The URL to invoke the Kafka topic.
     """
     headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
-    #Data should be send as pairs of column_name:value, 
-    #with different columns separated by commas
-    payload = json.dumps({
-        "records": [{
-                "value": {key: data[key] for key in data.keys()}
-            }]
-    })
+    payload = build_payload(data)
     response = requests.post(
         f'{invoke_url}/{topic_name}', headers=headers, data=payload
     )
@@ -81,6 +75,22 @@ def send_data_to_kafka(data, topic_name, invoke_url):
     else:
         print(f'Failed to send data to Kafka topic {topic_name}')
         print(f'Response: {response.status_code}, {response.text}')
+
+def build_payload(data):
+    """
+    Builds a payload for sending data to a Kafka topic.    
+    Data should be send as pairs of column_name:value, with different columns 
+    separated by commas
+    
+    Parameters:
+        data (dict): The data to be sent.
+    """
+    payload = json.dumps({
+        "records": [{
+                "value": {key: data[key] for key in data.keys()}
+            }]
+    })
+    return payload
 
 
 def run_infinite_post_data_loop(invoke_url):

@@ -68,15 +68,7 @@ def send_data_to_kinesis_stream(data, stream_name, invoke_url):
     """
     headers = {'Content-Type': 'application/json'}
     invoke_url = invoke_url.replace('<stream_name>', stream_name)
-    #Data should be send as pairs of column_name:value, 
-    #with different columns separated by commas
-    payload = json.dumps({
-        "StreamName": stream_name,
-        "Data": {
-            key: data[key] for key in data.keys()
-        },
-        "PartitionKey": data['ind'] if 'ind' in data.keys() else data['index']
-    })
+    payload = build_payload(data, stream_name)
     response = requests.request("PUT", invoke_url, headers=headers, data=payload)
     if response.status_code == 200:
         print(f'Successfully sent data to Kinesis stream {stream_name}')
@@ -84,6 +76,25 @@ def send_data_to_kinesis_stream(data, stream_name, invoke_url):
         print(f'Failed to send data to Kinesis stream {stream_name}')
         print(f'Response: {response.status_code}, {response.text}')
 
+def build_payload(data, stream_name):
+    """
+    Builds a payload for sending data to a Kinesis stream.
+    Data should be send as pairs of column_name:value with different columns 
+    separated by commas
+
+    Parameters
+    ----------
+    data (dict): The data to be sent to the Kinesis stream.
+    stream_name (str): The name of the Kinesis stream.
+    """
+    payload = json.dumps({
+        "StreamName": stream_name,
+        "Data": {
+            key: data[key] for key in data.keys()
+        },
+        "PartitionKey": data['ind'] if 'ind' in data.keys() else data['index']
+    })
+    return payload
 
 def run_infinite_post_data_loop(invoke_url):
     """
